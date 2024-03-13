@@ -6,6 +6,7 @@ import os
 pygame.init()
 pygame.mixer.init()
 
+# sons
 bite = pygame.mixer.Sound('./files/bite.mp3')
 musica_menu = 'files/menusong.mp3'
 musica_game = 'files/game.mp3'
@@ -28,6 +29,9 @@ azul = (0, 0, 255)
 # parametros da cobra
 tamanho_quadrado = 20
 velocidade_jogo = 12
+
+score = 0
+
 
 class Botao:
     def __init__(self, posicao_x, posicao_y, largura, altura, cor, cor_hover, texto, fonte, cor_texto):
@@ -56,7 +60,10 @@ def menu():
     comecar = False
     fonte = pygame.font.Font(os.path.join('files/glorial.ttf'), 50)
     fonte2 = pygame.font.SysFont('arialblack', 24)
+    fonte3 = pygame.font.SysFont('arial', 16)
     botao_inicio = Botao(340, 310, 100, 30, cinza, vermelho, "Iniciar", fonte2, verde)
+    pontuacao = fonte3.render(f'Last Score: {score}', True, vermelho)
+
     pygame.mixer_music.load(musica_menu)
     pygame.mixer_music.play(-1)
     while not comecar:
@@ -64,6 +71,7 @@ def menu():
 
         texto = fonte.render("Snake", True, verde)
         tela.blit(texto, [largura/5*2, altura/3])
+        tela.blit(pontuacao, [345, 350])
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 comecar = True
@@ -96,7 +104,9 @@ def desenhar_cobra(tamanho, pixels):
 def desenhar_pontuacao(pontos):
     fonts = pygame.font.SysFont('Helvetica', 35)
     texto = fonts.render(f"Pontos: {pontos}", True, vermelho)
-    tela.blit(texto, [1, 1])
+    tela.blit(texto, [325, 10])
+    global score
+    score = pontos
 
 
 def selecionar_velocidade(tecla, x, y, direct):
@@ -143,6 +153,7 @@ def rodar_jogo():
     pixels = []
     comida_x, comida_y = gerar_comida()
     direct = ""
+    limitedecontrole = 0
 
     while not fim_jogo:
         tela.fill(preto)
@@ -151,7 +162,8 @@ def rodar_jogo():
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 fim_jogo = True
-            elif evento.type == pygame.KEYDOWN:
+            elif evento.type == pygame.KEYDOWN and limitedecontrole == 0:
+                limitedecontrole = 1
                 velocidade_x, velocidade_y, direct = selecionar_velocidade(evento.key, velocidade_x, velocidade_y, direct)
         # atualizando posição
         x += velocidade_x
@@ -159,16 +171,21 @@ def rodar_jogo():
         pixels.append([x, y])  # criando movimentação visual
         if len(pixels) > tamanho_cobra:
             del pixels[0]
+        desenhar_cobra(tamanho_quadrado, pixels)
+        limitedecontrole = 0
+
         if x < margem_x or x >= margem_x + largura_interna or y < margem_y or y >= margem_y + altura_interna:
             menu()
             fim_jogo = True
-        desenhar_cobra(tamanho_quadrado, pixels)
-        desenhar_comida(tamanho_quadrado, comida_x, comida_y)
+
         desenhar_pontuacao(tamanho_cobra - 1)
         for pixel in pixels[:-1]:  # caso bate em si mesmo
             if pixel == ([x, y]):
                 menu()
                 fim_jogo = True
+
+        # comida
+        desenhar_comida(tamanho_quadrado, comida_x, comida_y)
         if x == comida_x and y == comida_y:
             tamanho_cobra += 1
             dificultade += 1
@@ -177,6 +194,8 @@ def rodar_jogo():
                 velocidade_jogo += 1
                 dificultade = 0
             comida_x, comida_y = gerar_comida()
+            while [comida_x, comida_y] in pixels: # evitando que comida apareça dentro da cobra
+                comida_x, comida_y = gerar_comida()
         if fim_jogo:
             tela.fill(preto)
         pygame.display.update()
@@ -184,5 +203,3 @@ def rodar_jogo():
 
 
 menu()
-# bug, comida dentro da cobra
-# bug curva muito rapida
