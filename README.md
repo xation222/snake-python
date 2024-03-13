@@ -1,3 +1,3 @@
 # snake-python
-Gama in disk folder
-Jogo na pasta disk
+Gama in dist folder
+Jogo na pasta dist
