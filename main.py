@@ -7,7 +7,7 @@ pygame.init()
 pygame.mixer.init()
 
 # sons
-bite = pygame.mixer.Sound('./files/bite.mp3')
+bite = pygame.mixer.Sound('files/bite.mp3')
 musica_menu = 'files/menusong.mp3'
 musica_game = 'files/game.mp3'
 
